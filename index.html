@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Ricordi di Grecia</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#153649">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ricordi Grecia">
+<style>
+  :root{
+    --plaster:#F1ECDF;
+    --plaster-2:#E7DFCB;
+    --ink:#22303A;
+    --ink-soft:#5B6B73;
+    --aegean:#2B6E8C;
+    --aegean-deep:#153649;
+    --bougainvillea:#C1524B;
+    --gold:#C08A2E;
+    --sea-tint:#DCEAEA;
+    --white:#FFFDF8;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--plaster);
+    color:var(--ink);
+    font-family:var(--font-body);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  /* ---- generic screen ---- */
+  .screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:28px 24px calc(24px + env(safe-area-inset-bottom));
+    animation:fade .35s ease;
+  }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .screen{animation:none;} }
+
+  h1.title{
+    font-family:var(--font-display);
+    font-size:2rem;
+    line-height:1.15;
+    margin:0 0 10px;
+    color:var(--aegean-deep);
+  }
+  p.lede{
+    color:var(--ink-soft);
+    font-size:1rem;
+    line-height:1.5;
+    margin:0 0 28px;
+  }
+
+  /* ---- horizon progress ---- */
+  .horizon{
+    position:relative;
+    height:26px;
+    margin:4px 24px 0;
+  }
+  .horizon .line{
+    position:absolute; left:0; right:0; top:12px;
+    height:2px; background:var(--plaster-2);
+    border-radius:2px;
+  }
+  .horizon .fill{
+    position:absolute; left:0; top:12px;
+    height:2px; background:var(--aegean);
+    border-radius:2px;
+    transition:width .3s ease;
+  }
+  .horizon .boat{
+    position:absolute; top:-2px;
+    transform:translateX(-50%);
+    font-size:15px;
+    transition:left .3s ease;
+  }
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 24px 0;
+    font-size:.8rem;
+    color:var(--ink-soft);
+  }
+  .meta-row .who{
+    font-weight:600;
+    color:var(--aegean-deep);
+  }
+  .reset-link{
+    background:none; border:none; color:var(--ink-soft);
+    font-size:.8rem; text-decoration:underline;
+    cursor:pointer; padding:4px;
+  }
+
+  /* ---- form fields ---- */
+  label{
+    display:block;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  input[type=text]{
+    width:100%;
+    font-family:var(--font-body);
+    font-size:1rem;
+    padding:13px 14px;
+    border:1px solid var(--plaster-2);
+    background:var(--white);
+    border-radius:10px;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
+  input[type=text]:focus{ outline:2px solid var(--aegean); outline-offset:1px; }
+
+  textarea{
+    width:100%;
+    flex:1;
+    min-height:140px;
+    font-family:var(--font-body);
+    font-size:1.05rem;
+    line-height:1.6;
+    padding:16px;
+    border:1px solid var(--plaster-2);
+    background:var(--white);
+    border-radius:12px;
+    color:var(--ink);
+    resize:none;
+  }
+  textarea:focus{ outline:2px solid var(--aegean); outline-offset:1px; }
+
+  /* ---- buttons ---- */
+  .btn{
+    display:block;
+    width:100%;
+    font-family:var(--font-body);
+    font-size:1rem;
+    font-weight:600;
+    padding:16px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    text-align:center;
+  }
+  .btn-primary{ background:var(--aegean); color:var(--white); }
+  .btn-primary:disabled{ background:var(--plaster-2); color:var(--ink-soft); cursor:not-allowed; }
+  .btn-ghost{
+    background:transparent; color:var(--aegean-deep);
+    border:1px solid var(--plaster-2);
+  }
+  .btn-row{ display:flex; gap:10px; margin-top:16px; }
+  .btn-row .btn{ flex:1; }
+
+  .spacer{ flex:1; }
+
+  /* ---- category tag ---- */
+  .tag{
+    display:inline-block;
+    font-size:.78rem;
+    color:var(--bougainvillea);
+    margin-bottom:14px;
+  }
+
+  .question-text{
+    font-family:var(--font-display);
+    font-size:1.5rem;
+    line-height:1.3;
+    color:var(--ink);
+    margin:0 0 22px;
+  }
+
+  /* ---- blind / transition screen ---- */
+  .screen.blind{
+    background:var(--aegean-deep);
+    color:var(--white);
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    cursor:pointer;
+  }
+  .blind .wave{ font-size:2.2rem; margin-bottom:18px; opacity:.9; }
+  .blind h2{
+    font-family:var(--font-display);
+    font-size:1.7rem;
+    margin:0 0 10px;
+    line-height:1.3;
+  }
+  .blind p{ color:#BFD3DC; margin:0 0 34px; font-size:.95rem; }
+  .blind .btn-primary{ background:var(--white); color:var(--aegean-deep); max-width:260px; }
+
+  /* ---- welcome screen ---- */
+  .welcome-icon{ font-size:2.4rem; margin-bottom:18px; }
+
+  /* ---- reveal ---- */
+  .answer-block{
+    background:var(--white);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    border-left:4px solid var(--aegean);
+  }
+  .answer-block.p2{ border-left-color:var(--bougainvillea); }
+  .answer-block .name{
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .answer-block .text{
+    font-size:1rem;
+    line-height:1.5;
+    color:var(--ink);
+    white-space:pre-wrap;
+  }
+  .answer-block .text.empty{ color:var(--ink-soft); font-style:italic; }
+
+  /* ---- done screen ---- */
+  .done-num{
+    font-family:var(--font-display);
+    font-size:3.2rem;
+    color:var(--gold);
+    margin:0 0 6px;
+  }
+
+  .banner{
+    background:var(--sea-tint);
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:20px;
+    font-size:.92rem;
+    color:var(--ink);
+  }
+  .banner .btn{ margin-top:12px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "ricordi-grecia-v1";
+
+  var CATEGORIES = {
+    clou: "Momenti clou",
+    luoghi: "Luoghi ed esperienze",
+    coppia: "Voi due, in viaggio",
+    curiosita: "Curiosità e leggerezza",
+    avanti: "Guardando avanti"
+  };
+
+  var QUESTIONS = [
+    {c:"clou", q:"Qual è stato il momento più bello di questo viaggio?"},
+    {c:"clou", q:"C'è stato un momento in cui hai pensato: non voglio che finisca mai?"},
+    {c:"clou", q:"Qual è stato il momento più emozionante?"},
+    {c:"clou", q:"Cosa vi ha sorpreso di più, in senso positivo?"},
+    {c:"clou", q:"Qual è stato il momento più divertente?"},
+    {c:"clou", q:"C'è stato un momento imbarazzante che ricorderete ridendo?"},
+    {c:"clou", q:"Qual è la prima immagine che ti viene in mente pensando a questo viaggio?"},
+    {c:"clou", q:"Qual è stato il momento più romantico?"},
+    {c:"clou", q:"C'è stato un momento di puro relax che rifaresti subito?"},
+    {c:"clou", q:"Se dovessi scegliere una sola foto per raccontare il viaggio, quale sceglieresti e perché?"},
+
+    {c:"luoghi", q:"Qual è stato il posto più bello che avete visto?"},
+    {c:"luoghi", q:"Qual è stato il piatto migliore che avete mangiato?"},
+    {c:"luoghi", q:"C'è un posto che vi ha deluso rispetto alle aspettative?"},
+    {c:"luoghi", q:"Quale spiaggia vi è piaciuta di più?"},
+    {c:"luoghi", q:"C'è un'esperienza che rifareste subito una seconda volta?"},
+    {c:"luoghi", q:"C'è qualcosa che non rifareste mai più?"},
+    {c:"luoghi", q:"Qual è stato il tramonto (o l'alba) più bello visto insieme?"},
+    {c:"luoghi", q:"Quale città o isola vi ha conquistato di più?"},
+    {c:"luoghi", q:"Cosa vi ha colpito della cultura o delle persone incontrate?"},
+    {c:"luoghi", q:"Qual è il souvenir o l'oggetto che porterete a casa con più significato?"},
+
+    {c:"coppia", q:"C'è stato un momento in cui vi siete sentiti particolarmente vicini?"},
+    {c:"coppia", q:"Cosa hai scoperto dell'altro/a durante questo viaggio che non sapevi?"},
+    {c:"coppia", q:"In quale momento avete lavorato meglio come squadra?"},
+    {c:"coppia", q:"Chi ha avuto l'idea migliore del viaggio?"},
+    {c:"coppia", q:"Chi si è adattato meglio agli imprevisti?"},
+    {c:"coppia", q:"C'è stato un piccolo attrito o tensione? Come è finita?"},
+    {c:"coppia", q:"Qual è una cosa che apprezzi di come l'altro/a ha vissuto il viaggio?"},
+    {c:"coppia", q:"Cosa ti ha fatto ridere dell'altro/a durante questo viaggio?"},
+    {c:"coppia", q:"In che momento ti sei sentito/a più orgoglioso/a di voi come coppia?"},
+    {c:"coppia", q:"Qual è una cosa su questo viaggio che vorresti dire e non hai ancora detto?"},
+
+    {c:"curiosita", q:"Chi si è perso di più durante il viaggio?"},
+    {c:"curiosita", q:"Chi ha scattato la foto più assurda?"},
+    {c:"curiosita", q:"Qual è la cosa più strana che avete visto?"},
+    {c:"curiosita", q:"Chi ha dormito di più durante gli spostamenti?"},
+    {c:"curiosita", q:"Qual è stata la sveglia più presto o la nottata più lunga?"},
+    {c:"curiosita", q:"Chi ha speso di più in souvenir poco utili?"},
+    {c:"curiosita", q:"C'è stato un momento in cui uno dei due si è arrabbiato per una sciocchezza?"},
+    {c:"curiosita", q:"Qual è una parola o frase del posto che ricorderete per sempre?"},
+    {c:"curiosita", q:"Chi ha fatto più fatica con l'orientamento o le indicazioni?"},
+    {c:"curiosita", q:"Qual è stato l'imprevisto più assurdo del viaggio?"},
+    {c:"curiosita", q:"Se il viaggio fosse un film, che titolo gli dareste?"},
+    {c:"curiosita", q:"Qual è la cosa più buffa successa a tavola?"},
+
+    {c:"avanti", q:"C'è un posto dove tornereste sicuramente?"},
+    {c:"avanti", q:"Cosa portereste con voi, nella vita di tutti i giorni, da questo viaggio?"},
+    {c:"avanti", q:"Cosa vorreste fare diversamente nel prossimo viaggio insieme?"},
+    {c:"avanti", q:"Dove vorreste andare per il prossimo viaggio di coppia?"},
+    {c:"avanti", q:"C'è qualcosa che questo viaggio vi ha fatto capire su di voi come coppia?"},
+    {c:"avanti", q:"Tra un anno, cosa pensate ricorderete di più di questo viaggio?"},
+    {c:"avanti", q:"Consigliereste questo viaggio a qualcuno? Perché sì o perché no?"},
+    {c:"avanti", q:"Se doveste riassumere questo viaggio in una sola parola, quale sarebbe?"}
+  ];
+
+  var N = QUESTIONS.length;
+
+  var state = null;
+
+  function defaultState(){
+    return {
+      names:{p1:"", p2:""},
+      phase:"setup", // setup | blind1 | p1 | blind2 | p2 | reveal | done
+      index:0,
+      answers:{ p1:new Array(N).fill(""), p2:new Array(N).fill("") }
+    };
+  }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ return JSON.parse(raw); }
+    }catch(e){}
+    return null;
+  }
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function clearAndRestart(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    state = defaultState();
+    render();
+  }
+
+  var savedOnLoad = load();
+  state = savedOnLoad || defaultState();
+
+  var app = document.getElementById("app");
+
+  function el(html){
+    var t = document.createElement("template");
+    t.innerHTML = html.trim();
+    return t.content.firstChild;
+  }
+
+  function horizon(index){
+    var pct = Math.round((index / (N-1)) * 100);
+    return (
+      '<div class="horizon">' +
+        '<div class="line"></div>' +
+        '<div class="fill" style="width:' + pct + '%"></div>' +
+        '<div class="boat" style="left:' + pct + '%">⛵</div>' +
+      '</div>'
+    );
+  }
+
+  function resetButton(){
+    return '<button class="reset-link" id="btn-reset">Ricomincia da capo</button>';
+  }
+
+  function confirmReset(){
+    if(window.confirm("Sicuri di voler ricominciare? Tutte le risposte andranno perse.")){
+      clearAndRestart();
+    }
+  }
+
+  // ---------------- SCREENS ----------------
+
+  function renderSetup(){
+    var showResume = !!savedOnLoad && savedOnLoad.phase !== "setup";
+    var html = '<div class="screen">';
+    html += '<div class="welcome-icon">🇬🇷</div>';
+    html += '<h1 class="title">Ricordi di Grecia</h1>';
+    html += '<p class="lede">Un viaggio, due sguardi. Rispondete separatamente alle stesse 50 domande, poi scopritevi le risposte insieme, durante il ritorno.</p>';
+
+    if(showResume){
+      html += '<div class="banner">Avete una partita in corso.<button class="btn btn-primary" id="btn-resume">Riprendi da dove eravate</button></div>';
+    }
+
+    html += '<label for="in-p1">Nome di chi risponde per prima</label>';
+    html += '<input type="text" id="in-p1" placeholder="es. Chiara" value="' + escapeAttr(state.names.p1) + '">';
+    html += '<label for="in-p2">Il tuo nome</label>';
+    html += '<input type="text" id="in-p2" placeholder="es. Fabio" value="' + escapeAttr(state.names.p2) + '">';
+
+    html += '<div class="spacer"></div>';
+    html += '<button class="btn btn-primary" id="btn-start">Inizia</button>';
+    html += '</div>';
+
+    app.innerHTML = html;
+
+    if(showResume){
+      document.getElementById("btn-resume").addEventListener("click", function(){
+        state = savedOnLoad;
+        render();
+      });
+    }
+    document.getElementById("btn-start").addEventListener("click", function(){
+      var p1 = document.getElementById("in-p1").value.trim() || "Lei";
+      var p2 = document.getElementById("in-p2").value.trim() || "Tu";
+      state.names.p1 = p1;
+      state.names.p2 = p2;
+      state.phase = "blind1";
+      state.index = 0;
+      save();
+      render();
+    });
+  }
+
+  function renderBlind(nextPhase, name){
+    var html = '<div class="screen blind" id="blind-tap">';
+    html += '<div class="wave">〜</div>';
+    html += '<h2>Passa il telefono a<br>' + escapeHtml(name) + '</h2>';
+    html += '<p>Quando è pronto/a, tocca per iniziare.<br>L\'altro/a non vedrà queste risposte.</p>';
+    html += '<button class="btn btn-primary" id="btn-blind-go">Sono pronto/a</button>';
+    html += '</div>';
+    app.innerHTML = html;
+
+    function go(){
+      state.phase = nextPhase;
+      state.index = 0;
+      save();
+      render();
+    }
+    document.getElementById("btn-blind-go").addEventListener("click", go);
+  }
+
+  function renderQuestion(person, nextPhaseWhenDone){
+    var i = state.index;
+    var item = QUESTIONS[i];
+    var answers = state.answers[person];
+    var isLast = i === N-1;
+
+    var html = '';
+    html += '<div class="meta-row"><span>Domanda <span class="who">' + (i+1) + '</span> di ' + N + '</span>' + resetButton() + '</div>';
+    html += horizon(i);
+    html += '<div class="screen">';
+    html += '<span class="tag">' + CATEGORIES[item.c] + '</span>';
+    html += '<p class="question-text">' + escapeHtml(item.q) + '</p>';
+    html += '<textarea id="answer-box" placeholder="Scrivi la tua risposta…">' + escapeHtml(answers[i] || "") + '</textarea>';
+    html += '<div class="btn-row">';
+    html += '<button class="btn btn-ghost" id="btn-back"' + (i===0 ? ' disabled' : '') + '>Indietro</button>';
+    html += '<button class="btn btn-primary" id="btn-next">' + (isLast ? "Fine del turno" : "Avanti") + '</button>';
+    html += '</div>';
+    html += '</div>';
+    app.innerHTML = html;
+
+    var box = document.getElementById("answer-box");
+
+    function persistCurrent(){
+      answers[i] = box.value;
+      save();
+    }
+
+    document.getElementById("btn-reset").addEventListener("click", confirmReset);
+
+    var backBtn = document.getElementById("btn-back");
+    if(backBtn && !backBtn.disabled){
+      backBtn.addEventListener("click", function(){
+        persistCurrent();
+        state.index = i - 1;
+        save();
+        render();
+      });
+    }
+
+    document.getElementById("btn-next").addEventListener("click", function(){
+      persistCurrent();
+      if(isLast){
+        state.phase = nextPhaseWhenDone;
+        state.index = 0;
+      } else {
+        state.index = i + 1;
+      }
+      save();
+      render();
+    });
+  }
+
+  function renderReveal(){
+    var i = state.index;
+    var item = QUESTIONS[i];
+    var isLast = i === N-1;
+
+    var html = '';
+    html += '<div class="meta-row"><span>Ricordo <span class="who">' + (i+1) + '</span> di ' + N + '</span>' + resetButton() + '</div>';
+    html += horizon(i);
+    html += '<div class="screen">';
+    html += '<span class="tag">' + CATEGORIES[item.c] + '</span>';
+    html += '<p class="question-text">' + escapeHtml(item.q) + '</p>';
+
+    html += answerBlockHtml(state.names.p1, state.answers.p1[i], "p1");
+    html += answerBlockHtml(state.names.p2, state.answers.p2[i], "p2");
+
+    html += '<div class="spacer"></div>';
+    html += '<div class="btn-row">';
+    html += '<button class="btn btn-ghost" id="btn-back"' + (i===0 ? ' disabled' : '') + '>Indietro</button>';
+    html += '<button class="btn btn-primary" id="btn-next">' + (isLast ? "Concludi" : "Prossima") + '</button>';
+    html += '</div>';
+    html += '</div>';
+    app.innerHTML = html;
+
+    document.getElementById("btn-reset").addEventListener("click", confirmReset);
+
+    var backBtn = document.getElementById("btn-back");
+    if(backBtn && !backBtn.disabled){
+      backBtn.addEventListener("click", function(){
+        state.index = i - 1;
+        save();
+        render();
+      });
+    }
+    document.getElementById("btn-next").addEventListener("click", function(){
+      if(isLast){
+        state.phase = "done";
+      } else {
+        state.index = i + 1;
+      }
+      save();
+      render();
+    });
+  }
+
+  function answerBlockHtml(name, text, cls){
+    var t = (text || "").trim();
+    var body = t ? escapeHtml(t) : "Nessuna risposta.";
+    var emptyClass = t ? "" : " empty";
+    return (
+      '<div class="answer-block ' + cls + '">' +
+        '<div class="name">' + escapeHtml(name) + '</div>' +
+        '<div class="text' + emptyClass + '">' + body + '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderDone(){
+    var html = '<div class="screen">';
+    html += '<div class="spacer"></div>';
+    html += '<p class="done-num">' + N + '</p>';
+    html += '<h1 class="title">Ricordi rivissuti insieme.</h1>';
+    html += '<p class="lede">Avete ripercorso il vostro viaggio domanda dopo domanda, ' + escapeHtml(state.names.p1) + ' e ' + escapeHtml(state.names.p2) + '.</p>';
+    html += '<button class="btn btn-primary" id="btn-review">Rivedi le risposte dall\'inizio</button>';
+    html += '<div class="btn-row">';
+    html += '<button class="btn btn-ghost" id="btn-restart">Ricomincia da capo</button>';
+    html += '</div>';
+    html += '<div class="spacer"></div>';
+    html += '</div>';
+    app.innerHTML = html;
+
+    document.getElementById("btn-review").addEventListener("click", function(){
+      state.phase = "reveal";
+      state.index = 0;
+      save();
+      render();
+    });
+    document.getElementById("btn-restart").addEventListener("click", confirmReset);
+  }
+
+  function escapeHtml(s){
+    return String(s || "").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  function render(){
+    switch(state.phase){
+      case "setup": renderSetup(); break;
+      case "blind1": renderBlind("p1", state.names.p1); break;
+      case "p1": renderQuestion("p1", "blind2"); break;
+      case "blind2": renderBlind("p2", state.names.p2); break;
+      case "p2": renderQuestion("p2", "reveal"); break;
+      case "reveal": renderReveal(); break;
+      case "done": renderDone(); break;
+      default: renderSetup();
+    }
+  }
+
+  render();
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
